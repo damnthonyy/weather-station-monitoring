@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: display-service
+spec:
+  selector:
+    app: display-pod # send traffic to pods with this label
+  ports:
+  - protocol: TCP
+    port: 8080 # port extérieur exposé par le service
+    targetPort: 80 # port du conteneur
+  type: LoadBalancer # Spécifie qu'on veut que ce soit accessible depuis l'extérieur

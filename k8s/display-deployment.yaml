@@ -1,0 +1,33 @@
+# identifiant de la version de l'API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: display-deployment
+
+# spécification du déploiement
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: display-pod # label pour sélectionner les pods
+
+# template du pod
+  template:
+    metadata:
+      labels:
+        app: display-pod
+    spec:
+      containers:
+        - name: display-deployment
+          image: bigdvmn/meteo-collector:latest
+          ports:
+            - containerPort: 80 # port interne du conteneur
+          env:
+            - name: DB_HOST
+              value: postgres-db-service # nom du service de la base de données
+            - name: POSTGRES_DB
+              value: db_meteo
+            - name: POSTGRES_USER
+              value: user_meteo
+            - name: POSTGRES_PASSWORD
+              value: password123!
