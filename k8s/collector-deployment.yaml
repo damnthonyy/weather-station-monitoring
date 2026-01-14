@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collector-deployment
+spec:
+  replicas: 1 # 1 seul suffit pour eviter les doublons de données
+  selector:
+    matchLabels:
+      app: collector-pod
+  template:
+    metadata:
+      labels:
+        app: collector-pod
+    spec:
+      containers:
+        - name: collector-deployment
+          image: bigdvmn/meteo-collector:latest
+          env:
+            - name: DB_HOST
+              value: postgres-db-service # nom du service de la base de données
+            - name: POSTGRES_DB
+              value: db_meteo
+            - name: POSTGRES_USER
+              value: user_meteo
