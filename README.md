@@ -1,26 +1,26 @@
-# Station Météo
+# Weather Station
 
-Application de station météorologique composée de trois services principaux : une base de données PostgreSQL, un collecteur de données et une application web de visualisation.
+Weather monitoring application consisting of three main services: a PostgreSQL database, a data collector, and a web visualization application.
 
 ## 📋 Architecture
 
-### Composants
+### Components
 
-1. **Base de données (PostgreSQL)**
-   - Stocke les mesures de température
-   - Table `mesures` avec les champs : `id`, `ville`, `temperature`, `date`
+1. **Database (PostgreSQL)**
+   - Stores temperature measurements
+   - Table `mesures` with fields: `id`, `ville`, `temperature`, `date`
 
 2. **Collector** (`collector/`)
-   - Collecte et enregistre des données météorologiques (température)
-   - Insère des mesures toutes les 10 secondes dans la base de données
-   - Script Python utilisant `psycopg2`
+   - Collects and records weather data (temperature)
+   - Inserts measurements every 10 seconds into the database
+   - Python script using `psycopg2`
 
 3. **Webapp** (`webapp/`)
-   - Application Flask pour visualiser les données
-   - Affiche les 10 dernières mesures
-   - Accessible via un navigateur web
+   - Flask application for data visualization
+   - Displays the last 10 measurements
+   - Accessible via web browser
 
-### Schéma de l'architecture
+### Architecture Diagram
 
 ```
 ┌─────────────┐
@@ -33,17 +33,17 @@ Application de station météorologique composée de trois services principaux :
 └─────────────┘  │    └──────────────┘
 ```
 
-## 🚀 Déploiement
+## 🚀 Deployment
 
-### Prérequis
+### Prerequisites
 
-- Docker et Docker Compose (pour le déploiement local)
-- Kubernetes et kubectl (pour le déploiement en cluster)
-- Fichier `.env` avec les variables d'environnement
+- Docker and Docker Compose (for local deployment)
+- Kubernetes and kubectl (for cluster deployment)
+- `.env` file with environment variables
 
 ### Configuration
 
-Créez un fichier `.env` à la racine du projet :
+Create a `.env` file at the project root:
 
 ```env
 POSTGRES_USER=user_meteo
@@ -51,274 +51,300 @@ POSTGRES_PASSWORD=password123!
 POSTGRES_DB=db_meteo
 ```
 
-**Important :** Ne mettez pas d'espaces autour du signe `=` dans le fichier `.env`.
+**Important:** Do not put spaces around the `=` sign in the `.env` file.
 
 ---
 
-## 🐳 Déploiement avec Docker Compose
+## 🐳 Deployment with Docker Compose
 
-### Commandes usuelles
+### Common Commands
 
-#### Démarrer tous les services
+#### Start all services
 ```bash
 docker-compose up -d
 ```
 
-#### Démarrer avec reconstruction des images
+#### Start with image rebuild
 ```bash
 docker-compose up -d --build
 ```
 
-#### Voir les logs
+#### View logs
 ```bash
-# Tous les services
+# All services
 docker-compose logs -f
 
-# Un service spécifique
+# Specific service
 docker-compose logs -f collector
 docker-compose logs -f webapp
 docker-compose logs -f db
 ```
 
-#### Arrêter les services
+#### Stop services
 ```bash
 docker-compose down
 ```
 
-#### Arrêter et supprimer les volumes (⚠️ supprime les données)
+#### Stop and remove volumes (⚠️ deletes data)
 ```bash
 docker-compose down -v
 ```
 
-#### Voir l'état des conteneurs
+#### Check container status
 ```bash
 docker-compose ps
 ```
 
-#### Redémarrer un service spécifique
+#### Restart a specific service
 ```bash
 docker-compose restart collector
 docker-compose restart webapp
 ```
 
-### Accès aux services
+### Service Access
 
-- **Webapp** : http://localhost:8080
-- **Base de données** : localhost:5432
+- **Webapp**: http://localhost:8080
+- **Database**: localhost:5432
 
-### Connexion à la base de données
+### Connect to Database
 
 ```bash
 docker-compose exec db psql -U user_meteo -d db_meteo
 ```
 
-Commandes SQL utiles :
+Useful SQL commands:
 ```sql
--- Voir toutes les mesures
+-- View all measurements
 SELECT * FROM mesures ORDER BY date DESC;
 
--- Compter les mesures
+-- Count measurements
 SELECT COUNT(*) FROM mesures;
 
--- Voir les 10 dernières mesures
+-- View last 10 measurements
 SELECT * FROM mesures ORDER BY date DESC LIMIT 10;
 ```
 
 ---
 
-## ☸️ Déploiement avec Kubernetes
+## ☸️ Deployment with Kubernetes
 
-### Architecture Kubernetes
+### Kubernetes Architecture
 
-- **Deployments** :
-  - `db-deployment` : Base de données PostgreSQL
-  - `display-deployment` : Application collector/webapp
+- **Deployments**:
+  - `db-deployment`: PostgreSQL database
+  - `display-deployment`: Collector/webapp application
 
-- **Services** :
-  - `postgres-db-service` : Service pour la base de données
-  - `display-service` : Service pour l'application web (type LoadBalancer)
+- **Services**:
+  - `postgres-db-service`: Database service
+  - `display-service`: Web application service (LoadBalancer type)
 
-- **PersistentVolumeClaim** :
-  - `postgres-db-pvc` : Stockage persistant pour la base de données
+- **PersistentVolumeClaim**:
+  - `postgres-db-pvc`: Persistent storage for the database
 
-### Commandes usuelles
+### Common Commands
 
-#### Déployer tous les composants
+#### Deploy all components
 ```bash
-# Créer le PVC (stockage)
+# Create PVC (storage)
 kubectl apply -f k8s/db-pvc.yaml
 
-# Déployer la base de données
+# Deploy database
 kubectl apply -f k8s/db-deployment.yaml
 kubectl apply -f k8s/db-service.yaml
 
-# Déployer l'application
+# Deploy application
 kubectl apply -f k8s/display-deployment.yaml
 kubectl apply -f k8s/display-service.yaml
 ```
 
-#### Voir l'état des ressources
+#### View resource status
 ```bash
-# Voir les pods
+# View pods
 kubectl get pods
 
-# Voir les services
+# View services
 kubectl get services
 
-# Voir les deployments
+# View deployments
 kubectl get deployments
 
-# Voir les PVC
+# View PVCs
 kubectl get pvc
 ```
 
-#### Voir les logs
+#### View logs
 ```bash
-# Logs du collector/webapp
+# Collector/webapp logs
 kubectl logs -f -l app=display-pod
 
-# Logs de la base de données
+# Database logs
 kubectl logs -f -l app=postgres-db-pod
 
-# Logs d'un pod spécifique
-kubectl logs -f <nom-du-pod>
+# Specific pod logs
+kubectl logs -f <pod-name>
 
-# Logs du déploiement
+# Deployment logs
 kubectl logs -f deployment/display-deployment
 ```
 
-#### Appliquer une modification de configuration
+#### Apply configuration changes
 ```bash
-# Après modification d'un fichier YAML
+# After modifying a YAML file
 kubectl apply -f k8s/display-deployment.yaml
 
-# Kubernetes redéploiera automatiquement les pods
+# Kubernetes will automatically redeploy pods
 ```
 
-#### Redémarrer un deployment
+#### Restart a deployment
 ```bash
 kubectl rollout restart deployment/display-deployment
 kubectl rollout restart deployment/db-deployment
 ```
 
-#### Supprimer les ressources
+#### Delete resources
 ```bash
-# Supprimer un composant spécifique
+# Delete specific component
 kubectl delete -f k8s/display-deployment.yaml
 
-# Supprimer tout
+# Delete everything
 kubectl delete -f k8s/
 ```
 
-#### Accéder à un pod (debug)
+#### Access a pod (debugging)
 ```bash
-# Ouvrir un shell dans un pod
-kubectl exec -it <nom-du-pod> -- /bin/bash
+# Open a shell in a pod
+kubectl exec -it <pod-name> -- /bin/bash
 
-# Exécuter une commande dans un pod
-kubectl exec <nom-du-pod> -- psql -U user_meteo -d db_meteo -c "SELECT * FROM mesures;"
+# Execute a command in a pod
+kubectl exec <pod-name> -- psql -U user_meteo -d db_meteo -c "SELECT * FROM mesures;"
 ```
 
-#### Voir les événements
+#### View events
 ```bash
 kubectl get events --sort-by=.metadata.creationTimestamp
 ```
 
-#### Obtenir l'URL du service LoadBalancer
+#### Get LoadBalancer service URL
 ```bash
 kubectl get service display-service
 ```
 
-### Connexion à la base de données depuis un pod
+### Connect to Database from a Pod
 
 ```bash
-# Trouver le nom du pod de la base de données
+# Find database pod name
 kubectl get pods -l app=postgres-db-pod
 
-# Se connecter à la base de données
-kubectl exec -it <nom-du-pod-db> -- psql -U user_meteo -d db_meteo
+# Connect to database
+kubectl exec -it <db-pod-name> -- psql -U user_meteo -d db_meteo
+```
+
+### Stop Kubernetes Resources (Keep Data)
+
+To stop pods and services while keeping data for later:
+
+```bash
+# Stop deployments and services (data in PVC is preserved)
+kubectl delete -f k8s/collector-deployment.yaml \
+                -f k8s/display-deployment.yaml \
+                -f k8s/db-deployment.yaml \
+                -f k8s/display-service.yaml \
+                -f k8s/db-service.yaml
+```
+
+**Important:** Do NOT delete `db-pvc.yaml` if you want to keep your data.
+
+To restart later:
+```bash
+kubectl apply -f k8s/db-deployment.yaml
+kubectl apply -f k8s/db-service.yaml
+kubectl apply -f k8s/collector-deployment.yaml
+kubectl apply -f k8s/display-deployment.yaml
+kubectl apply -f k8s/display-service.yaml
 ```
 
 ---
 
-## 🔧 Développement
+## 🔧 Development
 
-### Structure du projet
+### Project Structure
 
 ```
 station-meteo/
-├── collector/           # Service de collecte de données
-│   ├── main.py         # Script principal
-│   ├── Dockerfile      # Image Docker
-│   └── requirements.txt # Dépendances Python
-├── webapp/             # Application web Flask
-│   ├── app.py         # Application Flask
-│   └── Dockerfile     # Image Docker
-├── k8s/                # Manifests Kubernetes
+├── collector/           # Data collection service
+│   ├── main.py         # Main script
+│   ├── Dockerfile      # Docker image
+│   └── requirements.txt # Python dependencies
+├── webapp/             # Flask web application
+│   ├── app.py         # Flask application
+│   └── Dockerfile     # Docker image
+├── k8s/                # Kubernetes manifests
 │   ├── db-deployment.yaml
 │   ├── db-service.yaml
 │   ├── db-pvc.yaml
+│   ├── collector-deployment.yaml
 │   ├── display-deployment.yaml
 │   └── display-service.yaml
-├── docker-compose.yml  # Configuration Docker Compose
-├── .env               # Variables d'environnement (à créer)
-└── README.md          # Ce fichier
+├── docker-compose.yml  # Docker Compose configuration
+├── .env               # Environment variables (create this)
+├── .env.example       # Environment variables template
+└── README.md          # This file
 ```
 
-### Variables d'environnement
+### Environment Variables
 
-| Variable | Description | Valeur par défaut |
-|----------|-------------|-------------------|
-| `DB_HOST` | Nom d'hôte de la base de données | `localhost` (Docker) / `db` (K8s) |
-| `POSTGRES_USER` | Utilisateur PostgreSQL | `user_meteo` |
-| `POSTGRES_PASSWORD` | Mot de passe PostgreSQL | `password123!` |
-| `POSTGRES_DB` | Nom de la base de données | `db_meteo` |
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `DB_HOST` | Database hostname | `localhost` (Docker) / `db` (K8s) |
+| `POSTGRES_USER` | PostgreSQL user | `user_meteo` |
+| `POSTGRES_PASSWORD` | PostgreSQL password | `password123!` |
+| `POSTGRES_DB` | Database name | `db_meteo` |
 
-### Modifier le code
+### Modify Code
 
-1. **Modifier le code Python** : Éditez les fichiers dans `collector/` ou `webapp/`
-2. **Reconstruire l'image** (Docker Compose) :
+1. **Modify Python code**: Edit files in `collector/` or `webapp/`
+2. **Rebuild image** (Docker Compose):
    ```bash
    docker-compose up -d --build
    ```
-3. **Reconstruire et déployer** (Kubernetes) :
+3. **Rebuild and deploy** (Kubernetes):
    ```bash
-   # 1. Reconstruire l'image Docker et la pousser vers votre registry
-   # 2. Mettre à jour l'image dans le deployment YAML
-   # 3. Appliquer le changement
+   # 1. Rebuild Docker image and push to your registry
+   # 2. Update image in deployment YAML
+   # 3. Apply changes
    kubectl apply -f k8s/display-deployment.yaml
    ```
 
 ---
 
-## 🐛 Dépannage
+## 🐛 Troubleshooting
 
-### Erreur d'authentification PostgreSQL
+### PostgreSQL Authentication Error
 
-**Symptôme :** `password authentication failed for user "user_meteo"`
+**Symptom:** `password authentication failed for user "user_meteo"`
 
-**Solution :**
-1. Vérifiez que le fichier `.env` existe et contient les bonnes valeurs
-2. Vérifiez qu'il n'y a pas d'espaces autour du `=` dans le `.env`
-3. Pour Docker Compose : supprimez le volume et redémarrez
+**Solution:**
+1. Check that the `.env` file exists and contains correct values
+2. Check that there are no spaces around `=` in `.env`
+3. For Docker Compose: delete volume and restart
    ```bash
    docker-compose down -v
    docker-compose up -d
    ```
-4. Pour Kubernetes : vérifiez que les variables d'environnement sont bien définies dans les deployments
+4. For Kubernetes: check that environment variables are properly defined in deployments
 
-### Le service ne peut pas résoudre le nom de la base de données (Kubernetes)
+### Service Cannot Resolve Database Hostname (Kubernetes)
 
-**Symptôme :** `could not translate host name "db-service" to address`
+**Symptom:** `could not translate host name "db-service" to address`
 
-**Solution :** Vérifiez que :
-- Le nom du service dans `db-service.yaml` correspond à la valeur de `DB_HOST` dans le deployment
-- Le service est bien créé : `kubectl get services`
-- Les pods sont dans le même namespace
+**Solution:** Check that:
+- The service name in `db-service.yaml` matches the `DB_HOST` value in the deployment
+- The service is created: `kubectl get services`
+- Pods are in the same namespace
 
-### Les logs ne s'affichent pas
+### Logs Not Displaying
 
-**Solution :** Utilisez `-f` pour suivre les logs en temps réel :
+**Solution:** Use `-f` to follow logs in real-time:
 ```bash
 kubectl logs -f -l app=display-pod
 docker-compose logs -f collector
@@ -328,7 +354,7 @@ docker-compose logs -f collector
 
 ## 📝 Notes
 
-- Le collector insère des données toutes les 10 secondes
-- La webapp affiche les 10 dernières mesures
-- Les données sont persistantes (volume Docker ou PVC Kubernetes)
-- En production, changez les mots de passe par défaut !
+- The collector inserts data every 10 seconds
+- The webapp displays the last 10 measurements
+- Data is persistent (Docker volume or Kubernetes PVC)
+- In production, change default passwords!
