@@ -187,7 +187,7 @@ kubectl logs -f <pod-name>
 kubectl logs -f deployment/display-deployment
 ```
 
-#### Apply configuration changes
+### Apply configuration changes
 ```bash
 # After modifying a YAML file
 kubectl apply -f k8s/display-deployment.yaml
@@ -195,13 +195,13 @@ kubectl apply -f k8s/display-deployment.yaml
 # Kubernetes will automatically redeploy pods
 ```
 
-#### Restart a deployment
+### Restart a deployment
 ```bash
 kubectl rollout restart deployment/display-deployment
 kubectl rollout restart deployment/db-deployment
 ```
 
-#### Delete resources
+### Delete resources
 ```bash
 # Delete specific component
 kubectl delete -f k8s/display-deployment.yaml
@@ -210,7 +210,7 @@ kubectl delete -f k8s/display-deployment.yaml
 kubectl delete -f k8s/
 ```
 
-#### Access a pod (debugging)
+### Access a pod (debugging)
 ```bash
 # Open a shell in a pod
 kubectl exec -it <pod-name> -- /bin/bash
@@ -219,17 +219,17 @@ kubectl exec -it <pod-name> -- /bin/bash
 kubectl exec <pod-name> -- psql -U user_meteo -d db_meteo -c "SELECT * FROM mesures;"
 ```
 
-#### View events
+### View events
 ```bash
 kubectl get events --sort-by=.metadata.creationTimestamp
 ```
 
-#### Get LoadBalancer service URL
+### Get LoadBalancer service URL
 ```bash
 kubectl get service display-service
 ```
 
-### Connect to Database from a Pod
+## Connect to Database from a Pod
 
 ```bash
 # Find database pod name
@@ -239,7 +239,7 @@ kubectl get pods -l app=postgres-db-pod
 kubectl exec -it <db-pod-name> -- psql -U user_meteo -d db_meteo
 ```
 
-### Stop Kubernetes Resources (Keep Data)
+## Stop Kubernetes Resources (Keep Data)
 
 To stop pods and services while keeping data for later:
 
@@ -265,9 +265,9 @@ kubectl apply -f k8s/display-service.yaml
 
 ---
 
-## 🔧 Development
+# 🔧 Development
 
-### Project Structure
+## Project Structure
 
 ```
 station-meteo/
@@ -291,7 +291,7 @@ station-meteo/
 └── README.md          # This file
 ```
 
-### Environment Variables
+## Environment Variables
 
 | Variable | Description | Default Value |
 |----------|-------------|---------------|
@@ -300,7 +300,7 @@ station-meteo/
 | `POSTGRES_PASSWORD` | PostgreSQL password | `password123!` |
 | `POSTGRES_DB` | Database name | `db_meteo` |
 
-### Modify Code
+## Modify Code
 
 1. **Modify Python code**: Edit files in `collector/` or `webapp/`
 2. **Rebuild image** (Docker Compose):
@@ -319,7 +319,7 @@ station-meteo/
 
 ## 🐛 Troubleshooting
 
-### PostgreSQL Authentication Error
+## PostgreSQL Authentication Error
 
 **Symptom:** `password authentication failed for user "user_meteo"`
 
@@ -333,7 +333,7 @@ station-meteo/
    ```
 4. For Kubernetes: check that environment variables are properly defined in deployments
 
-### Service Cannot Resolve Database Hostname (Kubernetes)
+## Service Cannot Resolve Database Hostname (Kubernetes)
 
 **Symptom:** `could not translate host name "db-service" to address`
 
@@ -342,7 +342,7 @@ station-meteo/
 - The service is created: `kubectl get services`
 - Pods are in the same namespace
 
-### Logs Not Displaying
+## Logs Not Displaying
 
 **Solution:** Use `-f` to follow logs in real-time:
 ```bash
@@ -352,7 +352,7 @@ docker-compose logs -f collector
 
 ---
 
-## 📝 Notes
+# 📝 Notes
 
 - The collector inserts data every 10 seconds
 - The webapp displays the last 10 measurements
