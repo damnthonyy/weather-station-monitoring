@@ -1,6 +1,6 @@
 # Weather Station
 
-Weather monitoring application consisting of three main services: a PostgreSQL database, a data collector, and a web visualization application.
+Weather monitoring application consisting of three main services: a PostgreSQL database, a data collector, and a web visualization application
 
 ## 📋 Architecture
 
